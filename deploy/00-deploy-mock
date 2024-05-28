@@ -1,0 +1,35 @@
+const { network } = require('hardhat');
+const {
+    developmentChains,
+    DECIMALS,
+    INITIAL_ANSWER,
+} = require('../helper-hardhat-config');
+
+module.exports = async ({ getNamedAccounts, deployments }) => {
+    const { deploy, log } = deployments;
+    const { deployer } = await getNamedAccounts();
+
+    if (developmentChains.includes(network.name)) {
+        log('Local network detected, deploying mocks...');
+        await deploy('MockV3Aggregator', {
+            contract: 'MockV3Aggregator',
+            from: deployer,
+            log: true,
+            args: [DECIMALS, INITIAL_ANSWER],
+        });
+        log('Contract MockV3Aggregator Deployed');
+        log('----------------------------------------------------------------');
+    }
+
+    const contractMockV3Aggregator = await ethers.getContract(
+        'MockV3Aggregator',
+        deployer
+    );
+    console.log('contractMockV3Aggregator', contractMockV3Aggregator);
+    console.log(
+        'contractMockV3Aggregator.address',
+        contractMockV3Aggregator.target
+    );
+};
+
+module.exports.tags = ['all', 'mock'];
